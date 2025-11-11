@@ -175,20 +175,23 @@ class MenuScene extends Phaser.Scene {
             fontSize: '24px'
         }).setOrigin(0.5);
 
+        let scores = []; // Declare scores outside try block
         try {
-            const scores = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            if (scores.length === 0) {
-                this.add.text(centerX, GAME_HEIGHT * 0.63, 'Aún no hay puntuaciones.', { ...textStyle, fontFamily: 'Arial, sans-serif', fontSize: '18px' }).setOrigin(0.5);
-            } else {
-                let scoreText = '';
-                for (let i = 0; i < scores.length; i++) {
-                    scoreText += `${i + 1}. ${scores[i]}\n`;
-                }
-                this.add.text(centerX, GAME_HEIGHT * 0.7, scoreText, { ...textStyle, fontFamily: 'Arial, sans-serif', fontSize: '20px' }).setOrigin(0.5);
-            }
+            scores = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         } catch (e) {
-            console.error('Error al leer localStorage:', e);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+            // If catch activates, scores should be initialized as an empty array
+            scores = [];
+            console.error('Error al leer localStorage (ignorado en sandbox):', e); // Optional: more descriptive error
+        }
+        // Rest of the logic using 'scores'
+        if (scores.length === 0) {
+            this.add.text(centerX, GAME_HEIGHT * 0.63, 'Aún no hay puntuaciones.', { ...textStyle, fontFamily: 'Arial, sans-serif', fontSize: '18px' }).setOrigin(0.5);
+        } else {
+            let scoreText = '';
+            for (let i = 0; i < scores.length; i++) {
+                scoreText += `${i + 1}. ${scores[i]}\n`;
+            }
+            this.add.text(centerX, GAME_HEIGHT * 0.7, scoreText, { ...textStyle, fontFamily: 'Arial, sans-serif', fontSize: '20px' }).setOrigin(0.5);
         }
 
 
@@ -599,7 +602,8 @@ class GameOverScene extends Phaser.Scene {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
                 isNewRecord = true;
             } catch (e) {
-                console.error('Error al guardar en localStorage:', e);
+                // If catch activates, simply ignore the error and continue
+                // console.error('Error al guardar en localStorage (ignorado en sandbox):', e); // Optional: more descriptive error
             }
         }
 
