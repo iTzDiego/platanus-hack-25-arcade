@@ -31,6 +31,25 @@ const COLOR_BRICK_DARK = 0x5C2E0A;
 // Clave de LocalStorage
 const STORAGE_KEY = 'TGLD_topScores';
 
+// --- Funciones auxiliares para localStorage seguro ---
+function safeGetLocalStorage(key) {
+    try {
+        return localStorage.getItem(key);
+    } catch (e) {
+        console.warn("localStorage.getItem failed (likely sandboxed environment):", e);
+        return null;
+    }
+}
+
+function safeSetLocalStorage(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (e) {
+        console.warn("localStorage.setItem failed (likely sandboxed environment):", e);
+        // Silently ignore the error as requested
+    }
+}
+
 // --- FUNCIONES DE DIBUJO PROCEDURAL (PIXEL ART) -----------------------------
 // Estas funciones dibujan el "pixel art" usando rectángulos, cumpliendo la restricción.
 // Toman `graphics` (el contexto de dibujo) y las coordenadas centrales (cx, cy).
@@ -177,7 +196,7 @@ class MenuScene extends Phaser.Scene {
 
         let scores = []; // Declare scores outside try block
         try {
-            scores = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            scores = JSON.parse(safeGetLocalStorage(STORAGE_KEY)) || [];
         } catch (e) {
             // If catch activates, scores should be initialized as an empty array
             scores = [];
@@ -598,13 +617,8 @@ class GameOverScene extends Phaser.Scene {
             scores.sort((a, b) => b - a); // Ordenar de mayor a menor
             scores.length = Math.min(scores.length, 5); // Recortar a 5
             
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
-                isNewRecord = true;
-            } catch (e) {
-                // If catch activates, simply ignore the error and continue
-                // console.error('Error al guardar en localStorage (ignorado en sandbox):', e); // Optional: more descriptive error
-            }
+            safeSetLocalStorage(STORAGE_KEY, JSON.stringify(scores));
+            isNewRecord = true;
         }
 
         if (isNewRecord) {
